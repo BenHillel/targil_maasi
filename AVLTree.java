@@ -1,5 +1,3 @@
-import AVLTree.AVLNode;
-import AVLTree.IAVLNode;
 
 /**
  *
@@ -100,11 +98,11 @@ public class AVLTree {
 	   if (node == null) {
 		   return -1;
 	   }
-	   treeDelete(node);
+	   node = treeDelete(node);
 	   this.length--;
 	   
 	   
-	   return 0;	// to be replaced by student code
+	   return delRebalance(node);	// to be replaced by student code
    }
 
    /**
@@ -266,6 +264,8 @@ public class AVLTree {
 	   return parent;
    }
    
+   // @return the parent of the node to be deleted
+   // @post the tree without the node to be deleted 
    private IAVLNode treeDelete(IAVLNode node) {
 	   // node is a leaf
 	   if (node.getHeight() == 0) {
@@ -276,6 +276,8 @@ public class AVLTree {
 			   node.getParent().setRight(new AVLNode());
 		   }
 		   return node.getParent();
+		   
+
 	   }
 	   // node has one child
 	   else if (hasOneChild(node) != null) {
@@ -399,6 +401,86 @@ public class AVLTree {
 	   return counter;
    }
    
+   private int delRebalance(IAVLNode curr) {
+	   int counter = 0;
+	  while(curr != null) { 
+		  //if the rank differences are 2,2 we demote the parent
+		  if(rankDiff(curr.getLeft()) == 2 && rankDiff(curr.getRight()) == 2) {
+			  demote(curr);
+			  counter++;
+			  curr = curr.getParent();
+			  continue;
+		  }
+		  //If the rank differences are 3, 1 
+		  if(getBalanceFactor(curr) == 2) {
+			  IAVLNode rightSon = curr.getRight();
+			  //Case 2: if the rank differences of the right child are the same
+			  if(getBalanceFactor(curr.getRight()) == 0) {
+				  rotateLeft(rightSon);
+				  demote(curr);
+				  promote(rightSon);
+				  counter += 3;
+				  break; // problem solved!
+			  }
+			  //Case 3: if the rank differences of the right child are 2, 1
+			  else if(getBalanceFactor(curr.getRight()) == 1) {
+				  rotateLeft(rightSon);
+				  demote(curr,2);
+				  counter += 2;
+				  curr = rightSon.getParent();
+				  continue; // problem not necessarily solved :( 
+			  }
+			  //Case 4: if the rank differences of the right child are 1, 2
+			  else if(getBalanceFactor(curr.getRight()) == -1){
+				  IAVLNode grandson = rightSon.getLeft();
+				  rotateRight(grandson);
+				  rotateLeft(grandson);
+				  demote(curr,2);
+				  demote(rightSon);
+				  promote(grandson);
+				  counter += 5;
+				  curr = grandson.getParent();
+				  continue; // problem not necessarily solved :(
+			  }
+		  }
+		  
+		  //If the rank differences are 1, 3 
+		  if(getBalanceFactor(curr) == 2) {
+			  IAVLNode leftSon = curr.getLeft();
+			  //Case 2: if the rank differences of the right child are the same
+			  if(getBalanceFactor(leftSon) == 0) {
+				  rotateRight(leftSon);
+				  demote(curr);
+				  promote(leftSon);
+				  counter += 3;
+				  break; // problem solved!
+			  }
+			  //Case 3: if the rank differences of the right child are 1, 2
+			  else if(getBalanceFactor(leftSon) == -1) {
+				  rotateRight(leftSon);
+				  demote(curr,2);
+				  counter += 2;
+				  curr = leftSon.getParent();
+				  continue; // problem not necessarily solved :( 
+			  }
+			  //Case 4: if the rank differences of the right child are 2, 1
+			  else if(getBalanceFactor(leftSon) == 1){
+				  IAVLNode grandson = leftSon.getRight();
+				  rotateLeft(grandson);
+				  rotateRight(grandson);
+				  demote(curr,2);
+				  demote(leftSon);
+				  promote(grandson);
+				  counter += 5;
+				  curr = grandson.getParent();
+				  continue; // problem not necessarily solved :(
+			  }
+		  }
+	  }
+	  return counter;
+   }
+   
+   
    private IAVLNode treeSearch(int k) {
  	  // binary search
  	  IAVLNode x = getRoot();
@@ -417,32 +499,74 @@ public class AVLTree {
    }
    
    private void promote(IAVLNode node) {
-	   node.setHeight(node.getHeight()+1);
+	   promote(node,1);
    }
    
    private void demote(IAVLNode node) {
-	   node.setHeight(node.getHeight()-1);
+	   demote(node,1);
+   }
+   
+   private void promote(IAVLNode node,int n) {
+	   node.setHeight(node.getHeight()+n);
+   }
+   
+   private void demote(IAVLNode node,int n) {
+	   node.setHeight(node.getHeight()-n);
    }
    
    private int getBalanceFactor(IAVLNode node) {
 	   return node.getLeft().getHeight() - node.getRight().getHeight();
    }
    
+   private int rankDiff(IAVLNode node) {
+	   return node.getParent().getHeight() - node.getHeight();
+   }
+   // rotate the tree around the given node and doesn't update the heights 
    private void rotateRight(IAVLNode node) {
 	   IAVLNode parent = node.getParent();
 	   parent.setLeft(node.getRight());
 	   node.getRight().setParent(parent);
+	   //if parent is the tree root
+	   if(parent.getParent() == null) {
+		   this.root = node;
+		   node.setParent(null);
+	   }
+	   // if the parent is a left child
+	   else if(parent.getParent().getLeft() == parent) {
+		   parent.getParent().setLeft(node);
+		   node.setParent(parent.getParent());
+	   }
+	   // if the parent is a right child
+	   else {
+		   parent.getParent().setRight(node);
+		   node.setParent(parent.getParent());
+	   }
 	   node.setRight(parent);
-	   node.setParent(parent.getParent());
 	   parent.setParent(node);
    }
    
+   
+   // rotate the tree around the given node and doesn't update the heights 
    private void rotateLeft(IAVLNode node) {
 	   IAVLNode parent = node.getParent();
 	   parent.setRight(node.getLeft());
 	   node.getLeft().setParent(parent);
+	   //if parent is the tree root
+	   if(parent.getParent() == null) {
+		   this.root = node;
+		   node.setParent(null);
+	   }
+	   // if the parent is a left child
+	   else if(parent.getParent().getLeft() == parent) {
+		   parent.getParent().setLeft(node);
+		   node.setParent(parent.getParent());
+	   }
+	   // if the parent is a right child
+	   else {
+		   parent.getParent().setRight(node);
+		   node.setParent(parent.getParent());
+	   }
 	   node.setLeft(parent);
-	   node.setParent(parent.getParent());
 	   parent.setParent(node);
    }
    
