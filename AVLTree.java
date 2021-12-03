@@ -66,6 +66,7 @@ public class AVLTree {
 	   // insert node to tree
 	   if (empty()) {
 		   this.root = node;
+		   this.length++;
 		   return 0;
 	   }
 	   
@@ -144,7 +145,8 @@ public class AVLTree {
   public int[] keysToArray()
   {
 	  IAVLNode[] array = new IAVLNode[size()];
-	  int index = 0;
+	  int[] index = new int[1];
+	  index[0] = 0;
 	  
 	  inOrder(getRoot(), array, index);
 	  
@@ -166,7 +168,8 @@ public class AVLTree {
   public String[] infoToArray()
   {
 	  IAVLNode[] array = new IAVLNode[size()];
-	  int index = 0;
+	  int[] index = new int[1];
+	  index[0] = 0;
 	  
 	  inOrder(getRoot(), array, index);
 	  
@@ -285,15 +288,23 @@ public class AVLTree {
 				   while(joined.getHeight() != rootHeight || joined.getHeight() != rootHeight-1) {
 					   joined = joined.getRight();
 				   }
-				   //insert x between joined and its parent
-				   joined.getParent().setRight(x);
-				   x.setParent(joined.getParent());
-				   joined.setParent(x);
-				   x.setLeft(joined);
-				   
-				   this.root = t.getRoot();
-				   this.length += t.length+1;
-				   this.rebalance(x);
+				   if(joined.getParent() == null) {//then add x as the root
+					   x.setLeft(joined);
+					   joined.setParent(x);
+					   this.root = x;
+					   this.length += t.length+1;  
+				   }else {
+					   //insert x between joined and its parent
+					   joined.getParent().setRight(x);
+					   x.setParent(joined.getParent());
+					   joined.setParent(x);
+					   x.setLeft(joined);
+					   
+					   this.root = t.getRoot();
+					   this.length += t.length+1;
+					   this.rebalance(x);
+				   }
+
 			   }
 			   return returnValue;
 		   }
@@ -358,15 +369,22 @@ public class AVLTree {
 				   while(joined.getHeight() != rootHeight || joined.getHeight() != rootHeight-1) {
 					   joined = joined.getLeft();
 				   }
-				   //insert x between joined and its parent
-				   joined.getParent().setLeft(x);
-				   x.setParent(joined.getParent());
-				   joined.setParent(x);
-				   x.setRight(joined);
+				   if(joined.getParent() == null) {
+					   x.setRight(joined);
+					   joined.setParent(x);
+					   this.root = x;
+					   this.length += t.length+1;
+				   }else {
+					   //insert x between joined and its parent
+					   joined.getParent().setLeft(x);
+					   x.setParent(joined.getParent());
+					   joined.setParent(x);
+					   x.setRight(joined);
 				   
-				   this.root = t.getRoot();
-				   this.length += t.length+1;
-				   this.rebalance(x);
+					   this.root = t.getRoot();
+					   this.length += t.length+1;
+					   this.rebalance(x);
+				   }
 			   }
 			   return returnValue;
 		   }
@@ -666,10 +684,13 @@ public class AVLTree {
    }
    
    private int getBalanceFactor(IAVLNode node) {
-	   return node.getLeft().getHeight() - node.getRight().getHeight();
+	   return node.getRight().getHeight() - node.getLeft().getHeight();
    }
    
    private int rankDiff(IAVLNode node) {
+	   if(node == null) {
+		   return -10;
+	   }
 	   return node.getParent().getHeight() - node.getHeight();
    }
    // rotate the tree around the given node and doesn't update the heights 
@@ -719,13 +740,14 @@ public class AVLTree {
 	   parent.setParent(node);
    }
    
-   private void inOrder(IAVLNode x, IAVLNode[] array, int index) {
+   private void inOrder(IAVLNode x, IAVLNode[] array, int[] index) {
 	   if (!x.isRealNode()) {
 		   return;
 	   }
 	   
 	   inOrder(x.getLeft(), array, index);
-	   array[index++] = x;
+	   array[index[0]] = x;
+	   index[0]++;
 	   inOrder(x.getRight(), array, index);
    }
    
