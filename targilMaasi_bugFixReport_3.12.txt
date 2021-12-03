@@ -1,0 +1,25 @@
+1. getBalanceFactor() : 
+	FIX: return node.getLeft().getHeight() - node.getRight().getHeight(); ==> return node.getRight().getHeight() - node.getLeft().getHeight();
+2. keysToArray(): 
+	FIX: int index = 0; ==> int[] index = new int[0];
+	ADD: index[0] = 0
+3. infoToArray():
+	FIX: int index = 0; ==> int[] index = new int[0];
+	ADD: index[0] = 0;
+4.inOrder():
+	FIX: private void inOrder(IAVLNode x, IAVLNode[] array, int index) ==> private void inOrder(IAVLNode x, IAVLNode[] array, int[] index)
+	FIX: array[index] = x; ==> array[index[0]] = x;
+	ADD: index[0]++;
+5.join():
+	add this after the while loop in the case that rank(t) >= rank(this) and none of
+	the trees are empty
+	ADD:	//if the trees are in the same rank (or one lss)
+	
+6.insert():
+	add this in the case of inserting to an empty list
+	ADD: this.length++;
+7.rankDiff():
+	ADD:
+		if(node == null) {
+			return -10;
+	   	}
