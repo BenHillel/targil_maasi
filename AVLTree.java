@@ -223,8 +223,159 @@ public class AVLTree {
     */   
    public int join(IAVLNode x, AVLTree t)
    {
-	   return -1;
+	   int returnValue = Math.abs(this.getRank() - t.getRank())+1;
+	   
+	   //determine if t's nodes are larger or smaller than x
+	   if(t.getRoot().getKey() < x.getKey()) { // t < x 
+		   if(t.getRoot().getHeight() < this.getRoot().getHeight()) { //rank(t) < rank(this)
+			   IAVLNode tRoot = t.getRoot();
+			   IAVLNode joined = this.getRoot();
+			   int tRootHeight = tRoot.getHeight();
+			   if(t.empty()) { //insert x in this 
+				   this.treeInsert(this.getRoot(),x);
+			   } 
+			   else { // if t is not empty here, then this is not empty as well
+				   tRoot.setParent(x);
+				   x.setLeft(tRoot);
+				   x.setHeight(tRoot.getHeight()+1);
+				   //find node in this (its most left branch) with the same height as tRoot (or one less)
+				   while(joined.getHeight() != tRootHeight || joined.getHeight() != tRootHeight-1) {
+					   joined = joined.getLeft();
+				   }
+				   //insert x between joined and its parent
+				   joined.getParent().setLeft(x);
+				   x.setParent(joined.getParent());
+				   joined.setParent(x);
+				   x.setRight(joined);
+			   }
+			   //Do rebalancing from x
+			   this.rebalance(x);
+			   this.length += t.size()+1;
+			   return returnValue;
+		   }
+		   else{// rank(t) >= rank(this)
+			   if(this.empty()) {
+				   if(t.empty()) { //if this.size <= t.size then t could be empty only if this is empty
+					   //if both trees are empty then we only insert x
+					   this.root = x;
+					   this.length++;
+					   return 1;
+				   }
+				   else {// only this is empty
+					   //set this to be t
+					   this.root = t.getRoot();
+					   this.length = t.size();
+					   //then insert x
+					   this.treeInsert(this.getRoot(),x);
+					   this.rebalance(x);
+					   return returnValue;
+				   }
+			   }
+			   else { //None of the trees are empty
+				   //Here we do the same as before but here t and this switched places
+				   //thus, after we finish we will change the root of this to the root of t
+				   IAVLNode root = this.getRoot();
+				   IAVLNode joined = t.getRoot();
+				   int rootHeight = root.getHeight();
+				   
+				   root.setParent(x);
+				   x.setRight(root);
+				   x.setHeight(root.getHeight()+1);
+				   //find node in t (its most right branch) with the same height as root (or one less)
+				   while(joined.getHeight() != rootHeight || joined.getHeight() != rootHeight-1) {
+					   joined = joined.getRight();
+				   }
+				   //insert x between joined and its parent
+				   joined.getParent().setRight(x);
+				   x.setParent(joined.getParent());
+				   joined.setParent(x);
+				   x.setLeft(joined);
+				   
+				   this.root = t.getRoot();
+				   this.length += t.length+1;
+				   this.rebalance(x);
+			   }
+			   return returnValue;
+		   }
+	   }
+	   else {// x < t
+		   // here we perform the same actions but we flip all of the directions
+		   if(t.getRoot().getHeight() < this.getRoot().getHeight()) { //rank(t) < rank(this)
+			   IAVLNode tRoot = t.getRoot();
+			   IAVLNode joined = this.getRoot();
+			   int tRootHeight = tRoot.getHeight();
+			   if(t.empty()) { //insert x in this 
+				   this.treeInsert(this.getRoot(),x);
+			   } 
+			   else { // if t is not empty here, then this is not empty as well
+				   tRoot.setParent(x);
+				   x.setRight(tRoot);
+				   x.setHeight(tRoot.getHeight()+1);
+				   //find node in this (its most right branch) with the same height as tRoot (or one less)
+				   while(joined.getHeight() != tRootHeight || joined.getHeight() != tRootHeight-1) {
+					   joined = joined.getRight();
+				   }
+				   //insert x between joined and its parent
+				   joined.getParent().setRight(x);
+				   x.setParent(joined.getParent());
+				   joined.setParent(x);
+				   x.setLeft(joined);
+			   }
+			   //Do rebalancing from x
+			   this.rebalance(x);
+			   this.length += t.size()+1;
+			   return returnValue;
+		   }
+		   else{// rank(t) >= rank(this)
+			   if(this.empty()) {
+				   if(t.empty()) { //if this.size <= t.size then t could be empty only if this is empty
+					   //if both trees are empty then we only insert x
+					   this.root = x;
+					   this.length++;
+					   return 1;
+				   }
+				   else {// only this is empty
+					   //set this to be t
+					   this.root = t.getRoot();
+					   this.length = t.size();
+					   //then insert x
+					   this.treeInsert(this.getRoot(),x);
+					   this.rebalance(x);
+					   return returnValue;
+				   }
+			   }
+			   else { //None of the trees are empty
+				   //Here we do the same as before but here t and this switched places 
+				   //thus, after we finish we will change the root of this to the root of t
+				   IAVLNode root = this.getRoot();
+				   IAVLNode joined = t.getRoot();
+				   int rootHeight = root.getHeight();
+				   
+				   root.setParent(x);
+				   x.setLeft(root);
+				   x.setHeight(root.getHeight()+1);
+				   //find node in t (its most right branch) with the same height as root (or one less)
+				   while(joined.getHeight() != rootHeight || joined.getHeight() != rootHeight-1) {
+					   joined = joined.getLeft();
+				   }
+				   //insert x between joined and its parent
+				   joined.getParent().setLeft(x);
+				   x.setParent(joined.getParent());
+				   joined.setParent(x);
+				   x.setRight(joined);
+				   
+				   this.root = t.getRoot();
+				   this.length += t.length+1;
+				   this.rebalance(x);
+			   }
+			   return returnValue;
+		   }
+	   }
    }
+   
+   //================================================================== ||
+   //==========================OUR_FUNCTIONS=========================== ||
+   //================================================================== \/
    
    // insert the node in the correct position
    private int treeInsert(IAVLNode startNode, IAVLNode newNode) {
@@ -544,8 +695,6 @@ public class AVLTree {
 	   node.setRight(parent);
 	   parent.setParent(node);
    }
-   
-   
    // rotate the tree around the given node and doesn't update the heights 
    private void rotateLeft(IAVLNode node) {
 	   IAVLNode parent = node.getParent();
@@ -579,6 +728,11 @@ public class AVLTree {
 	   array[index++] = x;
 	   inOrder(x.getRight(), array, index);
    }
+   
+   public int getRank() {
+	   return this.getRoot().getHeight();
+   }
+   
    
    /** 
 	 * public interface IAVLNode
@@ -627,6 +781,9 @@ public class AVLTree {
 		  this.left = new AVLNode();
 		  this.right = new AVLNode();
 		  this.height = 0;
+		  //set the virtual nodes parent to this node
+		  this.left.setParent(this);
+		  this.right.setParent(this);
 	  }
 	  
 		public int getKey()
