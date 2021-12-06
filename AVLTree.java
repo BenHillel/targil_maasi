@@ -537,6 +537,15 @@ public class AVLTree {
 						   rotateRight(curr.getParent());
 						   counter += 5;
 					   }
+					   else if(getBalanceFactor(curr) == 0) {
+							//Special case, could happen only after - join()
+							//demote parent
+							demote(parent);
+							//rotate right
+							rotateRight(curr);
+							continue;
+										   
+						}
 				   }
 				   else if (parent.getRight() == curr) {
 					   if (getBalanceFactor(curr) == 1) {
@@ -559,6 +568,14 @@ public class AVLTree {
 						   rotateLeft(curr.getParent());
 						   counter += 5;
 					   }
+					   else if(getBalanceFactor(curr) == 0) {
+							//special case, could happen only after - join()
+							// demote parent
+							demote(parent);
+							// rotate left
+							rotateLeft(curr);
+							continue;
+						}
 				   }
 				   break;
 			   }

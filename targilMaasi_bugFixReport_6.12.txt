@@ -1,0 +1,21 @@
+1.rebalance():
+	ADD: 	else if(getBalanceFactor(curr) == 0) {
+			//special case, could happen only after - join()
+			// demote parent
+			demote(parent);
+			// rotate left
+			rotateLeft(curr);
+			continue;
+		}
+	add this in the case of cuur being a right son and |BF| = 2 and parent height = curr height
+
+	ADD:	else if(getBalanceFactor(curr) == 0) {
+			//Special case, could happen only after - join()
+			//demote parent
+			demote(parent);
+			//rotate right
+			rotateRight(curr);
+			continue;
+						   
+		}
+	add this in the case of cuur being a left son and |BF| = 2 and parent height = curr height
