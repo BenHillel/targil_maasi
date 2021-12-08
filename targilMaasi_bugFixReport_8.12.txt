@@ -1,0 +1,25 @@
+1.join():
+	FIX: while(joined.getHeight() != tRootHeight || joined.getHeight() != tRootHeight-1)
+	==> while(joined.getHeight() != tRootHeight && joined.getHeight() != tRootHeight-1) 
+	(|| ==> &&)
+	
+	FIX: this.length = t.size(); == this.length = t.size()+1;
+	in the case of only one empty tree
+
+2.treeDelete():
+	ADD:
+		if(node.getParent() == null) {//if the node is the root
+			successor.setHeight(length);
+			return successor;
+		}
+	add this in the case of the node having two children
+
+3.rebalance():
+	FIX: demote(parent) ==> promote(curr)
+	in the case that only join() triggers
+
+4.delRebalance():
+	ADD: curr = curr.getParent();
+	add this at the very end of the while loop, as a fail-safe for 
+	the possibility of none of the cases triggering
+	

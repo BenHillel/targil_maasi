@@ -242,7 +242,7 @@ public class AVLTree {
 				   x.setLeft(tRoot);
 				   x.setHeight(tRoot.getHeight()+1);
 				   //find node in this (its most left branch) with the same height as tRoot (or one less)
-				   while(joined.getHeight() != tRootHeight || joined.getHeight() != tRootHeight-1) {
+				   while(joined.getHeight() != tRootHeight && joined.getHeight() != tRootHeight-1) {
 					   joined = joined.getLeft();
 				   }
 				   //insert x between joined and its parent
@@ -285,7 +285,7 @@ public class AVLTree {
 				   x.setRight(root);
 				   x.setHeight(root.getHeight()+1);
 				   //find node in t (its most right branch) with the same height as root (or one less)
-				   while(joined.getHeight() != rootHeight || joined.getHeight() != rootHeight-1) {
+				   while(joined.getHeight() != rootHeight && joined.getHeight() != rootHeight-1) {
 					   joined = joined.getRight();
 				   }
 				   if(joined.getParent() == null) {//then add x as the root
@@ -348,7 +348,7 @@ public class AVLTree {
 				   else {// only this is empty
 					   //set this to be t
 					   this.root = t.getRoot();
-					   this.length = t.size();
+					   this.length = t.size()+1;
 					   //then insert x
 					   this.treeInsert(this.getRoot(),x);
 					   this.rebalance(x);
@@ -471,6 +471,10 @@ public class AVLTree {
 		   successor.setParent(node.getParent());
 		   node.getRight().setParent(successor);
 		   node.getLeft().setParent(successor);
+		   if(node.getParent() == null) {// if the node is the root
+			   successor.setHeight(length);
+			   return successor;
+		   }
 		   if (node.getParent().getLeft() == node) {
 			   node.getParent().setLeft(node);
 		   }
@@ -540,7 +544,7 @@ public class AVLTree {
 					   else if(getBalanceFactor(curr) == 0) {
 							//Special case, could happen only after - join()
 							//demote parent
-							demote(parent);
+							promote(curr);
 							//rotate right
 							rotateRight(curr);
 							continue;
@@ -571,7 +575,7 @@ public class AVLTree {
 					   else if(getBalanceFactor(curr) == 0) {
 							//special case, could happen only after - join()
 							// demote parent
-							demote(parent);
+							promote(curr);
 							// rotate left
 							rotateLeft(curr);
 							continue;
@@ -662,6 +666,7 @@ public class AVLTree {
 				  continue; // problem not necessarily solved :(
 			  }
 		  }
+		  curr = curr.getParent();
 	  }
 	  return counter;
    }
