@@ -1,3 +1,5 @@
+
+
 /**
  *
  * AVLTree
@@ -8,7 +10,7 @@
  */
 
 public class AVLTree {
-	private IAVLNode root;
+	public IAVLNode root;
 	private int length;
 	
 	// creates an empty tree.
@@ -279,7 +281,8 @@ public class AVLTree {
 		   else {
 			   AVLTree tempTree = new AVLTree(parent.getRight());
 			   IAVLNode joinNode = new AVLNode(parent.getKey(), parent.getValue());
-			   rightTree.join(joinNode, tempTree);
+			   tempTree.join(joinNode, rightTree);
+			   rightTree = tempTree;
 		   }
 		   xNode = parent;
 		   parent = next;
@@ -342,7 +345,7 @@ public class AVLTree {
 				   else {// only this is empty
 					   //set this to be t
 					   this.root = t.getRoot();
-					   this.length = t.size();
+					   this.length = t.size()+1;
 					   //then insert x
 					   this.treeInsert(this.getRoot(),x);
 					   this.rebalance(x);
@@ -377,9 +380,9 @@ public class AVLTree {
 					   
 					   this.root = t.getRoot();
 					   this.length += t.length+1;
-					   this.rebalance(x);
+					   
 				   }
-
+				   this.rebalance(x);
 			   }
 			   return returnValue;
 		   }
@@ -458,8 +461,8 @@ public class AVLTree {
 				   
 					   this.root = t.getRoot();
 					   this.length += t.length+1;
-					   this.rebalance(x);
 				   }
+				   this.rebalance(x);
 			   }
 			   return returnValue;
 		   }
@@ -692,7 +695,7 @@ public class AVLTree {
 					   }
 					   else if(getBalanceFactor(curr) == 0) {
 							// special case, could happen only after - join().
-							parent.demote();
+							curr.promote();
 							rotateRight(curr);
 							continue;
 										   
@@ -717,7 +720,7 @@ public class AVLTree {
 					   }
 					   else if(getBalanceFactor(curr) == 0) {
 							// special case, could happen only after - join()
-							parent.demote();
+							curr.promote();
 							rotateLeft(curr);
 							continue;
 						}
